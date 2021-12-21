@@ -116,7 +116,7 @@ export class ButtonManager {
   createClientOptions(config: Config): google.payments.api.PaymentOptions {
     const clientConfig: google.payments.api.PaymentOptions = {
       environment: config.environment,
-      merchantInfo: this.createMerchantInfo(config),
+      ...this.createMerchantInfo(config),
     };
 
     if (config.onPaymentDataChanged || config.onPaymentAuthorized) {
@@ -171,7 +171,7 @@ export class ButtonManager {
   createLoadPaymentDataRequest(config: Config): google.payments.api.PaymentDataRequest {
     const request = {
       ...config.paymentRequest,
-      merchantInfo: this.createMerchantInfo(config),
+      ...this.createMerchantInfo(config),
     };
 
     // TODO: #13 re-enable inferrence if/when we agree as a team
@@ -179,20 +179,8 @@ export class ButtonManager {
     return request;
   }
 
-  private createMerchantInfo(config: Config): google.payments.api.MerchantInfo {
-    const merchantInfo: google.payments.api.MerchantInfo = {
-      ...config.paymentRequest.merchantInfo,
-    };
-
-    // apply softwareInfo if not set
-    if (!merchantInfo.softwareInfo) {
-      merchantInfo.softwareInfo = {
-        id: this.options.softwareInfoId,
-        version: this.options.softwareInfoVersion,
-      };
-    }
-
-    return merchantInfo;
+  private createMerchantInfo(config: Config) {
+    return { merchantId: config.paymentRequest.merchantId };
   }
 
   private isMounted(): boolean {
@@ -397,10 +385,7 @@ export class ButtonManager {
       config.buttonType,
       config.buttonLocale,
       config.buttonSizeMode,
-      config.paymentRequest.merchantInfo.merchantId,
-      config.paymentRequest.merchantInfo.merchantName,
-      config.paymentRequest.merchantInfo.softwareInfo?.id,
-      config.paymentRequest.merchantInfo.softwareInfo?.version,
+      config.paymentRequest.merchantId,
       config.paymentRequest.allowedPaymentMethods,
     ];
   }
